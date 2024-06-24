@@ -49,10 +49,10 @@ Para entrenar el modelo, se utilizó un conjunto de datos compuesto por:
 
 ### PDFs
 
-- **Cantidad Total de Datos**: 11,256 PDFs.
+- **Cantidad Total de Datos**: 20,210 PDFs.
 - **Distribución de Categorías**:
-  - **Benigna**: 9,038 PDFs
-  - **Maligno**: 2,218 PDFs
+  - **Benigna**: 17,938 PDFs
+  - **Maligno**: 2,272 PDFs
 
 ### Origen de los Datos
 
