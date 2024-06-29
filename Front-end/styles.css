@@ -1,0 +1,315 @@
+/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #283E51, #4B79A1);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 1.2em;
+  margin-bottom: 40px;
+  max-width: 600px; /* Width of the text block */
+}
+
+form {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px; /* Same width as the paragraph */
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+input[type="text"] {
+  width: 100%;
+  max-width: 400px; /* Fixed width for input field */
+  padding: 10px;
+  border-radius: 4px;
+  border: none;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4B79A1;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #283E51;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 1.2em;
+}
+
+.popup {
+  margin: 10px;
+  box-shadow: 4px 4px 10px -10px rgba(0, 0, 0, 1);
+  width: 300px;
+  justify-content: space-around;
+  align-items: center;
+  display: flex;
+  border-radius: 4px;
+  padding: 5px 0;
+  font-weight: 300;
+}
+.popup svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.popup-icon svg {
+  margin: 5px;
+  display: flex;
+  align-items: center;
+}
+.close-icon {
+  margin-left: auto;
+}
+.close-svg {
+  cursor: pointer;
+}
+.close-path {
+  fill: grey;
+}
+.success-popup {
+  background-color: #edfbd8;
+  border: solid 1px #84d65a;
+}
+.success-icon path {
+  fill: #84d65a;
+}
+.success-message {
+  color: #2b641e;
+}
+.alert-popup {
+  background-color: #fefce8;
+  border: solid 1px #facc15;
+}
+.alert-icon path {
+  fill: #facc15;
+}
+.alert-message {
+  color: #ca8a04;
+}
+.error-popup {
+  background-color: #fef2f2;
+  border: solid 1px #f87171;
+}
+.error-icon path {
+  fill: #f87171;
+}
+.error-message {
+  color: #991b1b;
+}
+.info-popup {
+  background-color: #eff6ff;
+  border: solid 1px #1d4ed8;
+}
+.info-icon path {
+  fill: #1d4ed8;
+}
+.info-message {
+  color: #1d4ed8;
+}
+
+.popup {
+  margin: 10px;
+  box-shadow: 4px 4px 10px -10px rgba(0, 0, 0, 1);
+  width: 300px;
+  justify-content: space-around;
+  align-items: center;
+  display: flex;
+  border-radius: 4px;
+  padding: 5px 0;
+  font-weight: 300;
+}
+.popup svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.popup-icon svg {
+  margin: 5px;
+  display: flex;
+  align-items: center;
+}
+.close-icon {
+  margin-left: auto;
+}
+.close-svg {
+  cursor: pointer;
+}
+.close-path {
+  fill: grey;
+}
+.success-popup {
+  background-color: #edfbd8;
+  border: solid 1px #84d65a;
+}
+.success-icon path {
+  fill: #84d65a;
+}
+.success-message {
+  color: #2b641e;
+}
+.alert-popup {
+  background-color: #fefce8;
+  border: solid 1px #facc15;
+}
+.alert-icon path {
+  fill: #facc15;
+}
+.alert-message {
+  color: #ca8a04;
+}
+.error-popup {
+  background-color: #fef2f2;
+  border: solid 1px #f87171;
+}
+.error-icon path {
+  fill: #f87171;
+}
+.error-message {
+  color: #991b1b;
+}
+.info-popup {
+  background-color: #eff6ff;
+  border: solid 1px #1d4ed8;
+}
+.info-icon path {
+  fill: #1d4ed8;
+}
+.info-message {
+  color: #1d4ed8;
+}
+.popup {
+  margin: 10px;
+  box-shadow: 4px 4px 10px -10px rgba(0, 0, 0, 1);
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the left */
+  border-radius: 4px;
+  padding: 10px;
+  font-weight: 300;
+  text-align: left; /* Ensure text is left-aligned */
+}
+.popup svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.popup-icon svg {
+  margin: 5px;
+  display: flex;
+  align-items: center;
+}
+.close-icon {
+  margin-left: auto;
+  cursor: pointer;
+}
+.close-svg {
+  cursor: pointer;
+}
+.close-path {
+  fill: grey;
+}
+.success-popup {
+  background-color: #edfbd8;
+  border: solid 1px #84d65a;
+}
+.success-icon path {
+  fill: #84d65a;
+}
+.success-message {
+  color: #2b641e;
+}
+.alert-popup {
+  background-color: #fefce8;
+  border: solid 1px #facc15;
+}
+.alert-icon path {
+  fill: #facc15;
+}
+.alert-message {
+  color: #ca8a04;
+}
+.error-popup {
+  background-color: #fef2f2;
+  border: solid 1px #f87171;
+}
+.error-icon path {
+  fill: #f87171;
+}
+.error-message {
+  color: #f87171;
+}
+.malware-popup {
+  background-color: #ffe6e6;
+  border: solid 1px #e60000;
+}
+.malware-icon path {
+  fill: #e60000;
+}
+.malware-message {
+  color: red;
+}
+.info-popup {
+  background-color: #eff6ff;
+  border: solid 1px #1d4ed8;
+}
+.info-icon path {
+  fill: #1d4ed8;
+}
+.info-message {
+  color: #1d4ed8;
+}
+.probabilities-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  text-align: left; /* Ensure text is left-aligned */
+}
+.probabilities-list li {
+  padding: 2px 0;
+}
+.probability-benign {
+  color: #2b641e;
+}
+.probability-defacement {
+  color: #ca8a04;
+}
+.probability-phishing {
+  color: #007bff; /* blue */
+}
+.probability-malware {
+  color: red;
+}
+#pdf-form {
+  margin-top: 100px; /* Adjust as needed */
+}
