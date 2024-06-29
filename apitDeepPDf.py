@@ -9,8 +9,12 @@ from datetime import datetime
 from urllib.parse import urlparse
 import subprocess
 import numpy as np
-app = Flask(__name__)
+from flask_cors import CORS
 
+
+app = Flask(__name__) 
+
+CORS(app)
 # Conectar a MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['url_analysis_db']
@@ -101,8 +105,6 @@ def tld_length(tld):
 label_mapping = {'benign': 0, 'defacement': 1, 'phishing': 2, 'malware': 3}
 reverse_label_mapping = {v: k for k, v in label_mapping.items()}
 
-# Cargar el modelo de deep learning
-model = tf.keras.models.load_model('url_model.h5')
 
 def extract_base_url(url):
     parsed_url = urlparse(url)
@@ -170,10 +172,11 @@ def extract_pdf_features(pdf_path):
 # Cargar el modelo guardado para PDFs
 xgb_model_loaded = joblib.load('xgb_model.pkl')
 
-@app.route('/predict', methods=['POST'])
-def predict_url_endpoint():
-    data = request.get_json()
-    url = data['url']
+# Cargar el modelo de deep learning
+model = tf.keras.models.load_model('url_model.h5')
+
+'''
+ 
     base_url = extract_base_url(url)
 
     # Verificar si la URL base ya existe en la base de datos
@@ -193,11 +196,18 @@ def predict_url_endpoint():
         }
         collection.insert_one(record)
         attempt_count = 1
+'''
+
+@app.route('/predict', methods=['POST'])
+def predict_url_endpoint():
+    data = request.get_json()
+    url = data['url']
+
 
     predicted_class, probabilities = predict_url(url, model)
 
     return jsonify(
-        {'url': url, 'prediction': predicted_class, 'probabilities': probabilities, 'attempt_count': attempt_count})
+        {'url': url, 'prediction': predicted_class, 'probabilities': probabilities})
 
 @app.route('/analizarpdf', methods=['POST'])
 def predict_pdf():
@@ -205,6 +215,7 @@ def predict_pdf():
         return jsonify({"error": "No file provided"}), 400
 
     file = request.files['file']
+    print(file)
     file_path = 'temp.pdf'
     file.save(file_path)
 

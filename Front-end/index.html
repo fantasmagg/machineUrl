@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Checker</title>
+  <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+  <h1>Verifica un URL para Actividad Sospechosa</h1>
+  <p>Este sitio web ayuda a identificar posibles riesgos de seguridad asociados con las URLs.</p>
+  
+  <!-- Form for URL verification -->
+  <form id="url-checker">
+    <label for="url">Ingrese la URL:</label>
+    <input type="text" id="url" name="url" required>
+    <button type="submit">Verificar URL</button>
+  </form>
+
+  <!-- Form for PDF verification -->
+  <form id="pdf-checker" enctype="multipart/form-data">
+    <label for="pdf">Seleccionar archivo PDF:</label>
+    <input type="file" id="pdf" name="pdf" accept=".pdf" required>
+    <button type="button" id="verify-pdf">Verificar PDF</button>
+  </form>
+
+  <div id="popup-container"></div>
+  <script src="index.js"></script>
+</body>
+</html>
