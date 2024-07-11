@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 import subprocess
 import numpy as np
 from flask_cors import CORS
-
+from Funciones import abnormal_url, count_atrate, count_dot, count_equal, count_http, count_https, count_hyphen, count_per, count_ques, count_www, digit_count, fd_length, having_ip_address, hostname_length, letter_count, no_of_dir, no_of_embed, shortening_service, suspicious_words, tld_length, url_length
 
 app = Flask(__name__) 
 
@@ -21,125 +21,54 @@ db = client['url_analysis_db']
 collection = db['url_analysis']
 
 # Definir funciones de extracción de características para URLs
-def having_ip_address(url):
-    match = re.search(
-        r'(([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.)',
-        url)
-    return 1 if match else 0
-
-def abnormal_url(url):
-    try:
-        hostname = url.split('/')[2]
-        match = re.search(re.escape(hostname), url)
-        return 1 if match else 0
-    except IndexError:
-        return 0
-
-def count_dot(url):
-    return url.count('.')
-
-def count_www(url):
-    return url.count('www')
-
-def count_atrate(url):
-    return url.count('@')
-
-def no_of_dir(url):
-    return url.count('/')
-
-def no_of_embed(url):
-    return url.count('//')
-
-def shortening_service(url):
-    match = re.search(
-        r'bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|yfrog\.com|migre\.me|ff\.im|tiny\.cc|url4\.eu|twit\.ac|su\.pr|twurl\.nl|snipurl\.com|short\.to|BudURL\.com|ping\.fm|post\.ly|Just\.as|bkite\.com|snipr\.com|fic\.kr|loopt\.us|doiop\.com|short\.ie|kl\.am|wp\.me|rubyurl\.com|om\.ly|to\.ly|bit\.do|t\.co|lnkd\.in|db\.tt|qr\.ae|adf\.ly|bitly\.com|cur\.lv|tinyurl\.com|ow\.ly|bit\.ly|ity\.im|q\.gs|is\.gd|po\.st|bc\.vc|twitthis\.com|u\.to|j\.mp|buzurl\.com|cutt\.us|u\.bb|yourls\.org|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|tr\.im|link\.zip\.net',
-        url)
-    return 1 if match else 0
-
-def count_https(url):
-    return url.count('https')
-
-def count_http(url):
-    return url.count('http')
-
-def count_per(url):
-    return url.count('%')
-
-def count_ques(url):
-    return url.count('?')
-
-def count_hyphen(url):
-    return url.count('-')
-
-def count_equal(url):
-    return url.count('=')
-
-def url_length(url):
-    return len(url)
-
-def hostname_length(url):
-    try:
-        return len(url.split('/')[2])
-    except IndexError:
-        return 0
-
-def suspicious_words(url):
-    return int('security' in url or 'confirm' in url or 'bank' in url)
-
-def digit_count(url):
-    return len([i for i in url if i.isdigit()])
-
-def letter_count(url):
-    return len([i for i in url if i.isalpha()])
-
-def fd_length(url):
-    try:
-        return len(url.split('/')[3])
-    except IndexError:
-        return 0
-
-def tld_length(tld):
-    return len(tld) if tld else 0
 
 # Mapear etiquetas de texto a valores numéricos
 label_mapping = {'benign': 0, 'defacement': 1, 'phishing': 2, 'malware': 3}
 reverse_label_mapping = {v: k for k, v in label_mapping.items()}
 
 
-def extract_base_url(url):
-    parsed_url = urlparse(url)
-    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-    return base_url
 
 def predict_url(url, model):
+    # Extrae características de la URL
     features = pd.Series([
-        having_ip_address(url),
-        abnormal_url(url),
-        count_dot(url),
-        count_www(url),
-        count_atrate(url),
-        no_of_dir(url),
-        no_of_embed(url),
-        shortening_service(url),
-        count_https(url),
-        count_http(url),
-        count_per(url),
-        count_ques(url),
-        count_hyphen(url),
-        count_equal(url),
-        url_length(url),
-        hostname_length(url),
-        suspicious_words(url),
-        digit_count(url),
-        letter_count(url),
-        fd_length(url),
-        tld_length(get_tld(url, fail_silently=True))
+        having_ip_address(url),  # Verifica si la URL tiene una dirección IP
+        abnormal_url(url),  # Verifica si la URL es anormal
+        count_dot(url),  # Cuenta la cantidad de puntos en la URL
+        count_www(url),  # Cuenta la cantidad de 'www' en la URL
+        count_atrate(url),  # Cuenta la cantidad de '@' en la URL
+        no_of_dir(url),  # Cuenta el número de directorios en la URL
+        no_of_embed(url),  # Cuenta el número de embebidos en la URL
+        shortening_service(url),  # Verifica si se utiliza un servicio de acortamiento de URL
+        count_https(url),  # Cuenta la cantidad de 'https' en la URL
+        count_http(url),  # Cuenta la cantidad de 'http' en la URL
+        count_per(url),  # Cuenta la cantidad de '%' en la URL
+        count_ques(url),  # Cuenta la cantidad de '?' en la URL
+        count_hyphen(url),  # Cuenta la cantidad de guiones en la URL
+        count_equal(url),  # Cuenta la cantidad de '=' en la URL
+        url_length(url),  # Calcula la longitud de la URL
+        hostname_length(url),  # Calcula la longitud del hostname en la URL
+        suspicious_words(url),  # Verifica si hay palabras sospechosas en la URL
+        digit_count(url),  # Cuenta la cantidad de dígitos en la URL
+        letter_count(url),  # Cuenta la cantidad de letras en la URL
+        fd_length(url),  # Calcula la longitud del directorio de nivel superior
+        tld_length(get_tld(url, fail_silently=True))  # Calcula la longitud del TLD (Top-Level Domain)
     ])
+
+    # Reorganiza las características en un formato adecuado para la predicción
     features = features.values.reshape(1, -1)
+
+    # Realiza la predicción utilizando el modelo proporcionado
     prediction = model.predict(features)
+
+    # Obtiene la clase predicha mapeándola a su etiqueta
     predicted_class = reverse_label_mapping[np.argmax(prediction[0])]
+
+    # Calcula las probabilidades asociadas a cada clase y las formatea
     probabilities_dict = {reverse_label_mapping[i]: format(prob, '.6f') for i, prob in enumerate(prediction[0])}
+
+    # Devuelve la clase predicha y las probabilidades
     return predicted_class, probabilities_dict
+
 
 # Definir funciones de extracción de características para PDFs
 model_columns = [
@@ -170,11 +99,15 @@ def extract_pdf_features(pdf_path):
     return pdf_data
 
 # Cargar el modelo guardado para PDFs
-xgb_model_loaded = joblib.load('xgb_model.pkl')
+xgb_model_pdf = joblib.load('xgb_model.pkl')
 
 # Cargar el modelo de deep learning
 model = tf.keras.models.load_model('url_model.h5')
 
+# Cargar el modelo guardado para Email
+xgb_model_email = joblib.load('modelo_email.pkl')
+
+vectorizer = joblib.load('vectorizer.pkl')
 '''
  
     base_url = extract_base_url(url)
@@ -184,8 +117,7 @@ model = tf.keras.models.load_model('url_model.h5')
 
     if existing_record:
         # Incrementar el contador de intentos si ya existe
-        collection.update_one({'base_url': base_url},
-                              {'$inc': {'attempt_count': 1}, '$set': {'last_accessed': datetime.now()}})
+        collection.update_one({'base_url': base_url},{'$inc': {'attempt_count': 1}, '$set': {'last_accessed': datetime.now()}})
         attempt_count = existing_record['attempt_count'] + 1
     else:
         # Guardar la nueva URL base en la base de datos
@@ -208,6 +140,25 @@ def predict_url_endpoint():
 
     return jsonify(
         {'url': url, 'prediction': predicted_class, 'probabilities': probabilities})
+    
+@app.route('/predict_email', methods=['POST'])
+def predict_url_email():
+    data = request.get_json()
+    email = data.get('email')  # Use get method to avoid KeyError
+
+    if email:
+        # Vectorizar el texto del correo electrónico
+        features = vectorizer.transform([email])
+
+        # Hacer la predicción
+        probabilities = xgb_model_email.predict(features)
+        print(probabilities)
+
+        return jsonify({'email text': email, 'probabilities': "Safe" if probabilities[0] == 0 else "Phising"})
+    else:
+        return jsonify({'error': 'Email not provided'}), 400
+
+
 
 @app.route('/analizarpdf', methods=['POST'])
 def predict_pdf():
@@ -223,7 +174,7 @@ def predict_pdf():
     pdf_features_df = pd.DataFrame([pdf_features])
     pdf_features_df = pdf_features_df.reindex(columns=model_columns, fill_value=0)
 
-    pdf_prediction = xgb_model_loaded.predict(pdf_features_df)
+    pdf_prediction = xgb_model_pdf.predict(pdf_features_df)
     result = 'malicious' if pdf_prediction[0] else 'clean'
 
     return jsonify({"file": file.filename, "prediction": result})

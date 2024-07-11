@@ -1,7 +1,47 @@
-document.getElementById('url-checker').addEventListener('submit', function(e) {
+
+//Nuevo
+document.getElementById('selector').addEventListener('change', function(e) {
+  const urlField = document.querySelector('.url');
+  const pdfField = document.querySelector('.pdf');
+  const emailField = document.querySelector('.email');
+  
+  urlField.classList.add('hidden');
+  pdfField.classList.add('hidden');
+  emailField.classList.add('hidden');
+  
+  switch (e.target.value) {
+    case 'url':
+      urlField.classList.remove('hidden');
+      break;
+    case 'pdf':
+      pdfField.classList.remove('hidden');
+      break;
+    case 'email':
+      emailField.classList.remove('hidden');
+      break;
+  }
+});
+
+document.getElementById('btn-analyzer').addEventListener('click', function(e) {
   e.preventDefault();
+console.log("funciona")
+  const analyzerType = document.getElementById('selector').value;
+
+  if (analyzerType === 'url') {
+    analyzeUrl();
+    console.log("url")
+  } else if (analyzerType === 'pdf') {
+   analyzePdf();
+   console.log("pdf")
+  }
+  else if(analyzerType === 'email'){
+    analyzeEmail();
+  }
+
+});
+
+function analyzeUrl() {
   const url = document.getElementById('url').value.trim();
-  //const apiUrl = 'http://127.0.0.1:5000/predict'; // Replace with your Flask API URL
 
   if (url === '') {
     displayErrorMessage('Por favor, ingrese una URL.');
@@ -31,10 +71,45 @@ document.getElementById('url-checker').addEventListener('submit', function(e) {
     console.error('Error:', error);
     displayErrorMessage('Error al verificar la URL. Por favor, inténtelo de nuevo.');
   });
-});
+}
 
-document.getElementById('verify-pdf').addEventListener('click', function() {
+function analyzeEmail() {
+  const email = document.getElementById('email').value.trim();
+
+  if (email === '') {
+    displayErrorMessage('Por favor, ingrese una URL.');
+    return;
+  }
+
+  const payload = { email: email };
+
+  fetch('http://127.0.0.1:5000/predict_email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log(data);
+    createPopupEmail(data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    displayErrorMessage('Error al verificar la URL. Por favor, inténtelo de nuevo.');
+  });
+}
+
+
+function analyzePdf() {
   const pdfFile = document.getElementById('pdf').files[0];
+
   if (!pdfFile) {
     displayErrorMessage('Seleccione un archivo PDF.');
     return;
@@ -42,8 +117,6 @@ document.getElementById('verify-pdf').addEventListener('click', function() {
 
   const formData = new FormData();
   formData.append('file', pdfFile);
-
- // const apiUrl = 'http://127.0.0.1:5000/analizarpdf'; // Replace with your Flask API endpoint for PDF prediction
 
   fetch('http://127.0.0.1:5000/analizarpdf', {
     method: 'POST',
@@ -57,65 +130,67 @@ document.getElementById('verify-pdf').addEventListener('click', function() {
   })
   .then(data => {
     console.log(data);
-    createPopup2(data)
+    createPopup2(data);
   })
   .catch(error => {
     console.error('Error:', error);
     displayErrorMessage('Error al verificar el archivo PDF. Por favor, inténtelo de nuevo.');
   });
-});
+}
 
-
-function createPopup2(data) {
+function createPopup(data) {
   const popupContainer = document.getElementById('popup-container');
   popupContainer.innerHTML = ''; // Clear previous popup
 
-  const { file, prediction } = data;
+  const { url, prediction, probabilities } = data;
+
   const popup = document.createElement('div');
   popup.classList.add('popup');
 
-  let iconClass, messageClass, bgColor, borderColor, iconColor, message;
-  switch(prediction) {
-    case 'clean':
-      iconClass = 'success-icon';
-      messageClass = 'success-message';
-      bgColor = '#edfbd8';
-      borderColor = '#84d65a';
-      iconColor = '#84d65a';
-      message = 'El PDF esta limpia.';
-      break;
-
-    case 'malware':
-      iconClass = 'malware-icon';
-      messageClass = 'malware-message';
-      bgColor = '#ffe6e6';
-      borderColor = '#e60000';
-      iconColor = '#e60000';
-      message = 'El PDF contiene malware.';
-      break;
-    default:
-      return;
-  }
-
-  popup.style.backgroundColor = bgColor;
-  popup.style.borderColor = borderColor;
-
-
 
   popup.innerHTML = `
-    <div class="popup-icon ${iconClass}">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${iconClass}-svg">
-        <!-- Add the appropriate SVG based on the icon -->
-      </svg>
-    </div>
-    <div class="${messageClass}">
-      ${message}
-      <ul class="">${file}</ul>
-    </div>
-    <div class="popup-icon close-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="close-svg">
-        <path d="m15.8333 5.34166-1.175-1.175-4.6583 4.65834-4.65833-4.65834-1.175 1.175 4.65833 4.65834-4.65833 4.6583 1.175 1.175 4.65833-4.6583 4.6583 4.6583 1.175-1.175-4.6583-4.6583z" class="close-path"></path>
-      </svg>
+    <div class="w-full max-w-4xl border-teal-400 border-2  rounded-3xl px-4 md:px-6 py-12 md:py-16 md:ml-8 ">
+    <i class="fa-solid fa-circle-xmark close-svg"></i>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-primary">Analysis Results</h2>
+      <div class=" rounded-lg shadow-lg p-6 md:p-8">
+        <div class="relative w-full overflow-auto">
+          <table class="w-full caption-bottom text-sm">
+            <thead class="[&amp;_tr]:border-b">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Metricas</th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Valores</th>
+              </tr>
+            </thead>
+            <tbody class="[&amp;_tr:last-child]:border-0">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">URL</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${url}</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Prediction</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${prediction}</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Benign</td>
+                <td class="p-4 text-green align-middle [&amp;:has([role=checkbox])]:pr-0">${(parseFloat(probabilities.benign) * 100).toFixed(2)}%</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Defacement</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${(parseFloat(probabilities.defacement) * 100).toFixed(2)}%</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Malware</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${(parseFloat(probabilities.malware) * 100).toFixed(2)}%</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Phishing</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${(parseFloat(probabilities.phishing) * 100).toFixed(2)}%</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   `;
 
@@ -126,89 +201,89 @@ function createPopup2(data) {
   popupContainer.appendChild(popup);
 }
 
-function createPopup(data) {
+function createPopupEmail(data) {
   const popupContainer = document.getElementById('popup-container');
   popupContainer.innerHTML = ''; // Clear previous popup
 
-  const { url, prediction, probabilities } = data;
+  const { probabilities } = data;
+
   const popup = document.createElement('div');
   popup.classList.add('popup');
 
-  let iconClass, messageClass, bgColor, borderColor, iconColor, message;
-  switch(prediction) {
-    case 'benign':
-      iconClass = 'success-icon';
-      messageClass = 'success-message';
-      bgColor = '#edfbd8';
-      borderColor = '#84d65a';
-      iconColor = '#84d65a';
-      message = 'La URL es benigna.';
-      break;
-    case 'defacement':
-      iconClass = 'alert-icon';
-      messageClass = 'alert-message';
-      bgColor = '#fefce8';
-      borderColor = '#facc15';
-      iconColor = '#facc15';
-      message = 'La URL es de desfiguración.';
-      break;
-    case 'phishing':
-      iconClass = 'error-icon';
-      messageClass = 'error-message';
-      bgColor = '#fef2f2';
-      borderColor = '#007bff'; // Blue color for phishing
-      iconColor = '#007bff';
-      message = 'La URL es un intento de phishing.';
-      break;
-    case 'malware':
-      iconClass = 'malware-icon';
-      messageClass = 'malware-message';
-      bgColor = '#ffe6e6';
-      borderColor = '#e60000';
-      iconColor = '#e60000';
-      message = 'La URL contiene malware.';
-      break;
-    default:
-      return;
-  }
-
-  popup.style.backgroundColor = bgColor;
-  popup.style.borderColor = borderColor;
-
-  const probabilityList = Object.entries(probabilities).map(([key, value]) => {
-    let colorClass;
-    switch(key) {
-      case 'benign':
-        colorClass = 'probability-benign';
-        break;
-      case 'defacement':
-        colorClass = 'probability-defacement';
-        break;
-      case 'phishing':
-        colorClass = 'probability-phishing';
-        break;
-      case 'malware':
-        colorClass = 'probability-malware';
-        break;
-    }
-    return `<li class="${colorClass}">${key}: ${value}%</li>`;
-  }).join('');
 
   popup.innerHTML = `
-    <div class="popup-icon ${iconClass}">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${iconClass}-svg">
-        <!-- Add the appropriate SVG based on the icon -->
-      </svg>
+    <div class="w-full max-w-4xl border-teal-400 border-2  rounded-3xl px-4 md:px-6 py-12 md:py-16 md:ml-8 ">
+    <i class="fa-solid fa-circle-xmark close-svg"></i>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-primary">Analysis Results</h2>
+      <div class=" rounded-lg shadow-lg p-6 md:p-8">
+        <div class="relative w-full overflow-auto">
+          <table class="w-full caption-bottom text-sm">
+            <thead class="[&amp;_tr]:border-b">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Metricas</th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Valores</th>
+              </tr>
+            </thead>
+            <tbody class="[&amp;_tr:last-child]:border-0">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">Resultado</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${probabilities}</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="${messageClass}">
-      ${message}
-      <ul class="probabilities-list">${probabilityList}</ul>
+  `;
+
+  popup.querySelector('.close-svg').addEventListener('click', () => {
+    popupContainer.innerHTML = '';
+  });
+
+  popupContainer.appendChild(popup);
+}
+
+function createPopup2(data) {
+  const popupContainer = document.getElementById('popup-container');
+  popupContainer.innerHTML = ''; // Clear previous popup
+
+  const { file, prediction } = data;
+  const popup = document.createElement('div');
+  popup.classList.add('popup');
+
+  popup.innerHTML = `
+
+
+  <div class="w-full max-w-4xl px-4 md:px-6   rounded-3xl rounded-3xl py-12 md:py-16 md:ml-8 ">
+    <i class="fa-solid fa-circle-xmark close-svg"></i>
+      <h2 class="text-white text-2xl md:text-3xl font-bold text-center mb-6 text-primary">Analysis Results</h2>
+      <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <div class="relative w-full overflow-auto">
+          <table class="w-full caption-bottom text-sm">
+            <thead class="[&amp;_tr]:border-b">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Metricas</th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">Valores</th>
+              </tr>
+            </thead>
+            <tbody class="[&amp;_tr:last-child]:border-0">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">File Name</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">${file}</td>
+              </tr>
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle ${prediction == "clean" ? "text-green-600" : "text-red-600"} [&amp;:has([role=checkbox])]:pr-0">Prediction</td>
+                <td class="p-4 align-middle ${prediction == "clean" ? "text-green-600" : "text-red-600"} [&amp;:has([role=checkbox])]:pr-0">${prediction}</td>
+              </tr>
+           
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="popup-icon close-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="close-svg">
-        <path d="m15.8333 5.34166-1.175-1.175-4.6583 4.65834-4.65833-4.65834-1.175 1.175 4.65833 4.65834-4.65833 4.6583 1.175 1.175 4.65833-4.6583 4.6583 4.6583 1.175-1.175-4.6583-4.6583z" class="close-path"></path>
-      </svg>
-    </div>
+    
   `;
 
   popup.querySelector('.close-svg').addEventListener('click', () => {
